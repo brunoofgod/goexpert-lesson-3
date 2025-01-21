@@ -6,21 +6,20 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/brunoofgod/goexpert-lesson-3/configs"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/event/handler"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/infra/graph"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/infra/grpc/pb"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/infra/grpc/service"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/infra/web/webserver"
+	"github.com/brunoofgod/goexpert-lesson-3/pkg/events"
+
 	graphql_handler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/devfullcycle/20-CleanArch/configs"
-	"github.com/devfullcycle/20-CleanArch/internal/event/handler"
-	"github.com/devfullcycle/20-CleanArch/internal/infra/graph"
-	"github.com/devfullcycle/20-CleanArch/internal/infra/grpc/pb"
-	"github.com/devfullcycle/20-CleanArch/internal/infra/grpc/service"
-	"github.com/devfullcycle/20-CleanArch/internal/infra/web/webserver"
-	"github.com/devfullcycle/20-CleanArch/pkg/events"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-
-	// mysql
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
@@ -46,7 +45,9 @@ func main() {
 
 	webserver := webserver.NewWebServer(configs.WebServerPort)
 	webOrderHandler := NewWebOrderHandler(db, eventDispatcher)
-	webserver.AddHandler("/order", webOrderHandler.Create)
+
+	webserver.AddHandler("POST", "/order", webOrderHandler.Create)
+	webserver.AddHandler("GET", "/orders", webOrderHandler.List)
 	fmt.Println("Starting web server on port", configs.WebServerPort)
 	go webserver.Start()
 

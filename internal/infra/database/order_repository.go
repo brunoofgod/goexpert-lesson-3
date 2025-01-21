@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 
-	"github.com/devfullcycle/20-CleanArch/internal/entity"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/entity"
 )
 
 type OrderRepository struct {
@@ -26,11 +26,34 @@ func (r *OrderRepository) Save(order *entity.Order) error {
 	return nil
 }
 
-func (r *OrderRepository) GetTotal() (int, error) {
+func (r *OrderRepository) List(page, limit int) ([]entity.Order, int, error) {
+	rows, err := r.Db.Query("SELECT id, price, tax, final_price FROM orders LIMIT ? OFFSET ?", limit, (page-1)*limit)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+	var orders []entity.Order
+	for rows.Next() {
+		var order entity.Order
+		err := rows.Scan(&order.ID, &order.Price, &order.Tax, &order.FinalPrice)
+		if err != nil {
+			return nil, 0, err
+		}
+		orders = append(orders, order)
+	}
+	totalPages, err := r.GetTotal(limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return orders, totalPages, nil
+}
+
+func (r *OrderRepository) GetTotal(limit int) (int, error) {
 	var total int
-	err := r.Db.QueryRow("Select count(*) from orders").Scan(&total)
+	err := r.Db.QueryRow("SELECT count(*) FROM orders").Scan(&total)
 	if err != nil {
 		return 0, err
 	}
-	return total, nil
+	return total / limit, nil
 }

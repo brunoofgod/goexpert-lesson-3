@@ -3,13 +3,14 @@ package service
 import (
 	"context"
 
-	"github.com/devfullcycle/20-CleanArch/internal/infra/grpc/pb"
-	"github.com/devfullcycle/20-CleanArch/internal/usecase"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/infra/grpc/pb"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/usecase"
 )
 
 type OrderService struct {
 	pb.UnimplementedOrderServiceServer
 	CreateOrderUseCase usecase.CreateOrderUseCase
+	// ListOrderUseCase   usecase.ListOrderUseCase
 }
 
 func NewOrderService(createOrderUseCase usecase.CreateOrderUseCase) *OrderService {
@@ -35,3 +36,16 @@ func (s *OrderService) CreateOrder(ctx context.Context, in *pb.CreateOrderReques
 		FinalPrice: float32(output.FinalPrice),
 	}, nil
 }
+
+// func (s *OrderService) ListOrder(ctx context.Context, in *pb.ListOrderRequest) (*pb.ListOrderResponse, error) {
+// 	output, err := s.ListOrderUseCase.Execute(usecase.ListOrderInputDTO{
+// 		Page:  int(in.Page),
+// 		Limit: int(in.Limit),
+// 	})
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return &pb.ListOrderResponse{
+// 		Orders: []*pb.ListOrderResponse_Order{},
+// 	}, nil
+// }

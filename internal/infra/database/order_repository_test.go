@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/devfullcycle/20-CleanArch/internal/entity"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/entity"
+
 	"github.com/stretchr/testify/suite"
 
 	// sqlite3
@@ -20,8 +21,7 @@ func (suite *OrderRepositoryTestSuite) SetupSuite() {
 	db, err := sql.Open("sqlite3", ":memory:")
 	suite.NoError(err)
 	db.Exec("CREATE TABLE orders (id varchar(255) NOT NULL, price float NOT NULL, tax float NOT NULL, final_price float NOT NULL, PRIMARY KEY (id))")
-	
-	
+
 	suite.Db = db
 }
 

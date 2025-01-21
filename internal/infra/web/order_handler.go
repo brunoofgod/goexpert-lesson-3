@@ -3,10 +3,11 @@ package web
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
-	"github.com/devfullcycle/20-CleanArch/internal/entity"
-	"github.com/devfullcycle/20-CleanArch/internal/usecase"
-	"github.com/devfullcycle/20-CleanArch/pkg/events"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/entity"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/usecase"
+	"github.com/brunoofgod/goexpert-lesson-3/pkg/events"
 )
 
 type WebOrderHandler struct {
@@ -46,4 +47,37 @@ func (h *WebOrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h WebOrderHandler) List(w http.ResponseWriter, r *http.Request) {
+
+	queryParams := r.URL.Query()
+	dto := usecase.ListOrderInputDTO{
+		Page:  parseQueryInt(queryParams.Get("page"), 10),
+		Limit: parseQueryInt(queryParams.Get("limit"), 10),
+	}
+
+	listOrder := usecase.NewListOrderUseCase(h.OrderRepository)
+	output, err := listOrder.Execute(dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(output)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func parseQueryInt(value string, defaultValue int) int {
+	if value == "" {
+		return defaultValue
+	}
+	parsedValue, err := strconv.Atoi(value)
+	if err != nil {
+		return defaultValue
+	}
+	return parsedValue
 }

@@ -6,12 +6,13 @@ package main
 import (
 	"database/sql"
 
-	"github.com/devfullcycle/20-CleanArch/internal/entity"
-	"github.com/devfullcycle/20-CleanArch/internal/event"
-	"github.com/devfullcycle/20-CleanArch/internal/infra/database"
-	"github.com/devfullcycle/20-CleanArch/internal/infra/web"
-	"github.com/devfullcycle/20-CleanArch/internal/usecase"
-	"github.com/devfullcycle/20-CleanArch/pkg/events"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/entity"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/event"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/infra/database"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/infra/web"
+	"github.com/brunoofgod/goexpert-lesson-3/internal/usecase"
+	"github.com/brunoofgod/goexpert-lesson-3/pkg/events"
+
 	"github.com/google/wire"
 )
 
@@ -31,6 +32,14 @@ var setOrderCreatedEvent = wire.NewSet(
 	event.NewOrderCreated,
 	wire.Bind(new(events.EventInterface), new(*event.OrderCreated)),
 )
+
+func NewListOrderUseCase(db *sql.DB) *usecase.ListOrderUseCase {
+	wire.Build(
+		setOrderRepositoryDependency,
+		usecase.NewListOrderUseCase,
+	)
+	return &usecase.ListOrderUseCase{}
+}
 
 func NewCreateOrderUseCase(db *sql.DB, eventDispatcher events.EventDispatcherInterface) *usecase.CreateOrderUseCase {
 	wire.Build(
