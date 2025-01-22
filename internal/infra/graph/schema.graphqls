@@ -11,6 +11,16 @@ input OrderInput {
     Tax: Float!
 }
 
+type OrderPagination {
+    orders: [Order!]!
+    currentPage: Int!
+    totalPages: Int!
+}
+
+type Query {
+    orders(page: Int, limit: Int): OrderPagination!
+}
+
 type Mutation {
     createOrder(input: OrderInput): Order
 }
