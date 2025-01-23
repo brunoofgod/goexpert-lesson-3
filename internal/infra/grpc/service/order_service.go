@@ -10,12 +10,13 @@ import (
 type OrderService struct {
 	pb.UnimplementedOrderServiceServer
 	CreateOrderUseCase usecase.CreateOrderUseCase
-	// ListOrderUseCase   usecase.ListOrderUseCase
+	ListOrderUseCase   usecase.ListOrderUseCase
 }
 
-func NewOrderService(createOrderUseCase usecase.CreateOrderUseCase) *OrderService {
+func NewOrderService(createOrderUseCase usecase.CreateOrderUseCase, listOrderUseCase usecase.ListOrderUseCase) *OrderService {
 	return &OrderService{
 		CreateOrderUseCase: createOrderUseCase,
+		ListOrderUseCase:   listOrderUseCase,
 	}
 }
 
@@ -37,15 +38,25 @@ func (s *OrderService) CreateOrder(ctx context.Context, in *pb.CreateOrderReques
 	}, nil
 }
 
-// func (s *OrderService) ListOrder(ctx context.Context, in *pb.ListOrderRequest) (*pb.ListOrderResponse, error) {
-// 	output, err := s.ListOrderUseCase.Execute(usecase.ListOrderInputDTO{
-// 		Page:  int(in.Page),
-// 		Limit: int(in.Limit),
-// 	})
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &pb.ListOrderResponse{
-// 		Orders: []*pb.ListOrderResponse_Order{},
-// 	}, nil
-// }
+func (s *OrderService) ListOrder(ctx context.Context, in *pb.ListOrderRequest) (*pb.ListOrderResponse, error) {
+
+	output, err := s.ListOrderUseCase.Execute(usecase.ListOrderInputDTO{
+		Page:  int(in.Page),
+		Limit: int(in.Limit),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	response := &pb.ListOrderResponse{}
+	for _, order := range output.Orders {
+		response.Orders = append(response.Orders, &pb.CreateOrderResponse{
+			Id:         order.ID,
+			Price:      float32(order.Price),
+			Tax:        float32(order.Tax),
+			FinalPrice: float32(order.FinalPrice),
+		})
+	}
+
+	return response, nil
+}
