@@ -164,8 +164,15 @@ O programa está estruturado utilizando clean arquiteture com as seguintes bibli
    ```bash
     docker-compose up -d
    ```
-4. Rode as migrations:
+4. Execute as migrations:
    
    ```bash
     migrate -path=internal/infra/database/migrations -database "mysql://root:root@tcp(localhost:3306)/orders" -verbose up
+   ```
+
+4. Execute a aplicação:
+   
+   ```bash
+    cd cmd/ordersystem
+    go run main.go wire_gen.go 
    ```
