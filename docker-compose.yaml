@@ -31,7 +31,7 @@ services:
       - app-network
 
   migrations:
-    image: golang:1.22.5 
+    image: golang:1.22.5
     container_name: migrations
     depends_on:
       - mysql
@@ -52,6 +52,40 @@ services:
       echo 'MySQL pronto! Iniciando as migrations...';
       go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest && \
       /go/bin/migrate -path=internal/infra/database/migrations -database 'mysql://root:root@tcp(mysql:3306)/orders' -verbose up;
+      "
+
+  ordersystem:
+    image: golang:1.22.5
+    container_name: ordersystem
+    depends_on:
+      - mysql
+      - rabbitmq
+      - migrations
+    volumes:
+      - ./:/app
+    working_dir: /app/cmd/ordersystem
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+      - "50051:50051"
+      - "8080:8080"
+    entrypoint: >
+      sh -c "
+      echo 'Instalando o cliente MySQL...';
+      apt-get update && apt-get install -y default-mysql-client && \
+      echo 'Aguardando todos os serviços ficarem prontos...';
+      while ! mysqladmin ping -h mysql -uroot -proot --silent; do
+        echo 'Esperando MySQL...';
+        sleep 2;
+      done;
+      while ! curl -s rabbitmq:15672 > /dev/null; do
+        echo 'Esperando RabbitMQ...';
+        sleep 2;
+      done;
+      echo 'RabbitMQ está pronto! Iniciando o aplicativo...';
+      go mod tidy && \
+      go run main.go wire_gen.go;
       "
 
 volumes:

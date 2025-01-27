@@ -154,19 +154,8 @@ O programa está estruturado utilizando clean arquiteture com as seguintes bibli
     cd goexpert-lesson-3
    ```
 
-2. Carregue as dependências:
-   
-   ```bash
-    go mod tidy
-   ```
-3. Suba os containers docker:
+2. Suba os containers docker:
    
    ```bash
     docker-compose up -d
-   ```
-4. Execute a aplicação:
-   
-   ```bash
-    cd cmd/ordersystem
-    go run main.go wire_gen.go 
    ```
